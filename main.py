@@ -86,7 +86,34 @@ def signup():
         return  render_template('signup.html')
 
 
+# create a route for login
+@app.route('/signin', methods = ['POST','GET'])
+def signin():
+    if request.method =='POST':
+        email = request.form['email']
+        password = request.form['password']
 
+        # process login
+        connection = pymysql.connect(host='localhost', user='root', password='',
+                                     database='Flask_Web')
+
+        # Create a cursor to execute SQL Query
+        cursor = connection.cursor()
+        cursor.execute('select * from Users where email = %s and password =%s',
+                       (email, password))
+        # above query should either find a match or not
+        # check how may rows cursor found
+        if cursor.rowcount ==0:
+            return render_template('signin.html', error = 'Wrong Credentials!')
+
+        elif cursor.rowcount ==1:
+            #session['key'] = email
+            return redirect('/')
+        else:
+            return render_template('signin.html', error = 'Something went wrong')
+
+    else:
+        return render_template('signin.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
